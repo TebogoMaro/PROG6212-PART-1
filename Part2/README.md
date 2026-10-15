@@ -80,7 +80,8 @@ The Part 2 brief added requirements the Part 1 design did not capture, so the sc
 
 **Green build screenshot:**
 
-> <img width="1920" height="1080" alt="Part2 green build" src="https://github.com/user-attachments/assets/f0180454-ec08-4c6a-9b16-83eb15464c5d" />
+> <img width="1920" height="1080" alt="part2succesfulgreenbuild" src="https://github.com/user-attachments/assets/0d4afafc-f362-4788-bc6a-a70a982608ef" />
+
 
 
 ## Video walkthrough
