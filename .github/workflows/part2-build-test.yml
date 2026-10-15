@@ -1,0 +1,38 @@
+name: Part 2 - Build and Test API
+
+# Builds the RaceDay API and runs every unit test on every push and pull request.
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  build-and-test:
+    name: Build and run unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Part2/RaceDay.sln
+
+      - name: Build
+        run: dotnet build Part2/RaceDay.sln --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: dotnet test Part2/RaceDay.sln --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: "**/test-results.trx"

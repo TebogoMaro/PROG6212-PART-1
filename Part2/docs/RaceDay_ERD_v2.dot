@@ -1,0 +1,83 @@
+digraph RaceDayERDv2 {
+    rankdir=TB;
+    graph [fontname="Helvetica", bgcolor="#ffffff", nodesep=0.9, ranksep=1.1, label="RaceDay ERD - v2 (Part 2). Red headers = changed since Part 1.", labelloc=t, fontsize=14];
+    node [fontname="Helvetica", shape=plain];
+    edge [fontname="Helvetica", fontsize=11, color="#555555", penwidth=1.3];
+
+    Users [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#2C3E50" BGCOLOR="#FFFFFF">
+      <TR><TD BGCOLOR="#2C3E50" ALIGN="CENTER"><FONT COLOR="white"><B>Users</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  UserId (INT)</TD></TR>
+      <TR><TD ALIGN="LEFT">    FullName (NVARCHAR)</TD></TR>
+      <TR><TD ALIGN="LEFT">    Email (NVARCHAR, UNIQUE)</TD></TR>
+      <TR><TD ALIGN="LEFT">    PasswordHash (NVARCHAR)</TD></TR>
+      <TR><TD ALIGN="LEFT">    Role (VARCHAR: Organiser/Participant)</TD></TR>
+      <TR><TD ALIGN="LEFT">    CreatedAt (DATETIME)</TD></TR>
+    </TABLE>>];
+
+    Events [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#2C3E50" BGCOLOR="#FFFFFF">
+      <TR><TD BGCOLOR="#C0392B" ALIGN="CENTER"><FONT COLOR="white"><B>Events</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  EventId (INT)</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  OrganiserId (INT)</TD></TR>
+      <TR><TD ALIGN="LEFT">    EventName (NVARCHAR)</TD></TR>
+      <TR><TD ALIGN="LEFT">    EventDate (DATE)</TD></TR>
+      <TR><TD ALIGN="LEFT">    Location (NVARCHAR)</TD></TR>
+      <TR><TD ALIGN="LEFT">    Description (NVARCHAR)</TD></TR>
+      <TR><TD ALIGN="LEFT">    EventType (VARCHAR: Run/Walk/Cycle)  [NEW]</TD></TR>
+      <TR><TD ALIGN="LEFT">    DistanceKm (DECIMAL)  [NEW]</TD></TR>
+      <TR><TD ALIGN="LEFT">    CreatedAt (DATETIME)</TD></TR>
+    </TABLE>>];
+
+    Categories [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#2C3E50" BGCOLOR="#FFFFFF">
+      <TR><TD BGCOLOR="#C0392B" ALIGN="CENTER"><FONT COLOR="white"><B>Categories</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  CategoryId (INT)</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  EventId (INT)</TD></TR>
+      <TR><TD ALIGN="LEFT">    CategoryName (NVARCHAR)</TD></TR>
+      <TR><TD ALIGN="LEFT">    DistanceKm (DECIMAL, NULL)  [now optional]</TD></TR>
+      <TR><TD ALIGN="LEFT">    MaxParticipants (INT)</TD></TR>
+      <TR><TD ALIGN="LEFT">    EntryFee (DECIMAL)</TD></TR>
+    </TABLE>>];
+
+    Routes [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#2C3E50" BGCOLOR="#FFFFFF">
+      <TR><TD BGCOLOR="#2C3E50" ALIGN="CENTER"><FONT COLOR="white"><B>Routes</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  RouteId (INT)</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  CategoryId (INT, UNIQUE)</TD></TR>
+      <TR><TD ALIGN="LEFT">    StartPoint (NVARCHAR)</TD></TR>
+      <TR><TD ALIGN="LEFT">    EndPoint (NVARCHAR)</TD></TR>
+      <TR><TD ALIGN="LEFT">    RouteDescription (NVARCHAR)</TD></TR>
+      <TR><TD ALIGN="LEFT">    MapUrl (NVARCHAR)</TD></TR>
+    </TABLE>>];
+
+    EventEnrolments [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#2C3E50" BGCOLOR="#FFFFFF">
+      <TR><TD BGCOLOR="#C0392B" ALIGN="CENTER"><FONT COLOR="white"><B>EventEnrolments</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  EnrolmentId (INT)</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  ParticipantId (INT)</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  EventId (INT)  [NEW]</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  CategoryId (INT)</TD></TR>
+      <TR><TD ALIGN="LEFT">    EnrolmentDate (DATETIME)</TD></TR>
+      <TR><TD ALIGN="LEFT">    Status (VARCHAR)</TD></TR>
+      <TR><TD ALIGN="LEFT">    UNIQUE (ParticipantId, EventId)  [NEW]</TD></TR>
+    </TABLE>>];
+
+    Results [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6" COLOR="#2C3E50" BGCOLOR="#FFFFFF">
+      <TR><TD BGCOLOR="#2C3E50" ALIGN="CENTER"><FONT COLOR="white"><B>Results</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  ResultId (INT)</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  EnrolmentId (INT, UNIQUE)</TD></TR>
+      <TR><TD ALIGN="LEFT">    FinishTime (TIME)</TD></TR>
+      <TR><TD ALIGN="LEFT">    Position (INT)</TD></TR>
+      <TR><TD ALIGN="LEFT">    CapturedAt (DATETIME)</TD></TR>
+    </TABLE>>];
+
+    Users -> Events [taillabel="1", headlabel="*", label="organises"];
+    Users -> EventEnrolments [taillabel="1", headlabel="*", label="enters"];
+    Events -> Categories [taillabel="1", headlabel="*", label="has"];
+    Events -> EventEnrolments [taillabel="1", headlabel="*", label="receives entries"];
+    Categories -> Routes [taillabel="1", headlabel="0..1", label="has route"];
+    Categories -> EventEnrolments [taillabel="1", headlabel="*", label="chosen in"];
+    EventEnrolments -> Results [taillabel="1", headlabel="0..1", label="produces"];
+}
