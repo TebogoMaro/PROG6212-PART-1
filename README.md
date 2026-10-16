@@ -160,5 +160,5 @@ The Part 2 brief added requirements the Part 1 design did not capture, so the sc
 
 ## Video walkthrough
 
-> _[Insert unlisted YouTube link here]_
+> https://youtu.be/9Rywja6u5YQ
 
