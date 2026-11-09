@@ -1,0 +1,48 @@
+@model List<EnrolmentDto>
+@{
+    ViewData["Title"] = "My enrolments";
+}
+<p class="rd-eyebrow">Your race calendar</p>
+<h1 class="rd-page-title">My enrolments</h1>
+
+@if (Model.Count == 0)
+{
+    <div class="rd-empty">
+        <i class="bi bi-ticket-perforated"></i>
+        <h2>You haven't entered any events yet</h2>
+        <p>Browse upcoming events, choose a category and enrol.</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-rd">Browse events</a>
+    </div>
+}
+else
+{
+    <div class="card rd-card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table rd-table align-middle">
+                    <thead><tr><th>Event</th><th>Date</th><th>Category</th><th>Status</th><th>Result</th><th></th></tr></thead>
+                    <tbody>
+                    @foreach (var e in Model)
+                    {
+                        <tr class="@(e.Status == "Cancelled" ? "rd-past" : "")">
+                            <td><a asp-controller="Home" asp-action="Details" asp-route-id="@e.EventId" class="fw-semibold">@e.EventName</a></td>
+                            <td>@Display.Date(e.EventDate)</td>
+                            <td>@e.CategoryName</td>
+                            <td><span class="rd-status @Display.StatusClass(e.Status)">@e.Status</span></td>
+                            <td>@(e.FinishTime is null ? "-" : Display.Time(e.FinishTime.Value))</td>
+                            <td class="text-end">
+                                @if (e.Status != "Cancelled" && e.ResultId is null && Display.IsUpcoming(e.EventDate))
+                                {
+                                    <form asp-action="Cancel" asp-route-id="@e.EnrolmentId" method="post" onsubmit="return confirm('Cancel this enrolment?');">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Cancel</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

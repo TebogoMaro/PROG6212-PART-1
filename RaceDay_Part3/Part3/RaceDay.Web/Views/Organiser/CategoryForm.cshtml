@@ -1,0 +1,41 @@
+@model CategoryFormModel
+@{
+    ViewData["Title"] = "Edit category";
+}
+<p class="rd-eyebrow">@ViewData["EventName"]</p>
+<h1 class="rd-page-title">Edit category</h1>
+<div class="card rd-card">
+    <div class="card-body">
+        <form asp-action="EditCategory" asp-route-id="@Model.CategoryId" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input type="hidden" asp-for="EventId" />
+            <div class="mb-3">
+                <label asp-for="CategoryName" class="form-label"></label>
+                <input asp-for="CategoryName" class="form-control" />
+                <span asp-validation-for="CategoryName" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="DistanceKm" class="form-label"></label>
+                <input asp-for="DistanceKm" type="number" step="0.01" class="form-control" />
+                <span asp-validation-for="DistanceKm" class="text-danger small"></span>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-6">
+                    <label asp-for="MaxParticipants" class="form-label"></label>
+                    <input asp-for="MaxParticipants" type="number" class="form-control" />
+                    <span asp-validation-for="MaxParticipants" class="text-danger small"></span>
+                </div>
+                <div class="col-6">
+                    <label asp-for="EntryFee" class="form-label"></label>
+                    <input asp-for="EntryFee" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="EntryFee" class="text-danger small"></span>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-rd">Save changes</button>
+                <a asp-action="Categories" asp-route-eventId="@Model.EventId" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScripts" /> }

@@ -1,0 +1,43 @@
+@model EnrolmentsViewModel
+@{
+    ViewData["Title"] = "Enrolments";
+    var ev = Model.Event;
+    var active = Model.Enrolments.Count(e => e.Status != "Cancelled");
+}
+<p class="rd-eyebrow"><a asp-action="Events">My events</a> / @ev.EventName</p>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h1 class="rd-page-title mb-0">Enrolments <span class="badge rd-count-badge">@active</span></h1>
+    <a asp-action="Results" asp-route-eventId="@ev.EventId" class="btn btn-rd"><i class="bi bi-stopwatch"></i> Enter results</a>
+</div>
+@if (Model.Enrolments.Count == 0)
+{
+    <div class="rd-empty">
+        <i class="bi bi-people"></i>
+        <h2>Nobody has enrolled yet</h2>
+        <p>Participants will appear here as soon as they enter this event.</p>
+    </div>
+}
+else
+{
+    <div class="card rd-card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table rd-table align-middle">
+                    <thead><tr><th>Participant</th><th>Category</th><th>Status</th><th>Enrolled on</th><th>Result</th></tr></thead>
+                    <tbody>
+                    @foreach (var e in Model.Enrolments)
+                    {
+                        <tr>
+                            <td><strong>@e.ParticipantName</strong></td>
+                            <td>@e.CategoryName</td>
+                            <td><span class="rd-status @Display.StatusClass(e.Status)">@e.Status</span></td>
+                            <td>@e.EnrolmentDate.ToString("d MMM yyyy")</td>
+                            <td>@(e.FinishTime is null ? "-" : Display.Time(e.FinishTime.Value) + (e.Position is null ? "" : " (" + Display.Ordinal(e.Position.Value) + ")"))</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

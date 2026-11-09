@@ -1,0 +1,61 @@
+@model List<MyEventDto>
+@{
+    ViewData["Title"] = "Dashboard";
+    var user = Context.Session.GetUser();
+    var upcoming = Model.Where(e => Display.IsUpcoming(e.EventDate)).OrderBy(e => e.EventDate).ToList();
+    var totalEnrolments = Model.Sum(e => e.EnrolmentCount);
+    var next = upcoming.FirstOrDefault();
+}
+
+<p class="rd-eyebrow">Organiser dashboard</p>
+<h1 class="rd-page-title">Welcome back, @user?.FullName</h1>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3"><div class="rd-stat"><i class="bi bi-calendar-event"></i><strong>@Model.Count</strong><span>Events created</span></div></div>
+    <div class="col-6 col-lg-3"><div class="rd-stat"><i class="bi bi-hourglass-split"></i><strong>@upcoming.Count</strong><span>Upcoming events</span></div></div>
+    <div class="col-6 col-lg-3"><div class="rd-stat"><i class="bi bi-people-fill"></i><strong>@totalEnrolments</strong><span>Total enrolments</span></div></div>
+    <div class="col-6 col-lg-3">
+        <div class="rd-stat rd-stat-accent"><i class="bi bi-flag-fill"></i>
+            <strong class="rd-stat-small">@(next is null ? "None yet" : Display.Date(next.EventDate))</strong>
+            <span>@(next is null ? "Next event" : next.EventName)</span>
+        </div>
+    </div>
+</div>
+
+<div class="card rd-card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="rd-section-title mb-0">Your events</h2>
+            <a asp-action="CreateEvent" class="btn btn-rd btn-sm"><i class="bi bi-plus-circle"></i> Create event</a>
+        </div>
+        @if (Model.Count == 0)
+        {
+            <div class="rd-empty rd-empty-small">
+                <i class="bi bi-calendar-plus"></i>
+                <h2>You haven't created any events yet</h2>
+                <a asp-action="CreateEvent" class="btn btn-rd">Create your first event</a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table rd-table align-middle">
+                    <thead><tr><th>Event</th><th>Date</th><th>Location</th><th class="text-center">Categories</th><th class="text-center">Enrolments</th><th></th></tr></thead>
+                    <tbody>
+                    @foreach (var e in Model.OrderBy(x => x.EventDate))
+                    {
+                        <tr class="@(Display.IsUpcoming(e.EventDate) ? "" : "rd-past")">
+                            <td><strong>@e.EventName</strong><div class="small text-muted"><i class="bi @Display.EventIcon(e.EventType)"></i> @e.EventType - @Display.Km(e.DistanceKm)</div></td>
+                            <td>@Display.Date(e.EventDate)@if (!Display.IsUpcoming(e.EventDate)) { <span class="badge text-bg-secondary ms-1">Past</span> }</td>
+                            <td>@e.Location</td>
+                            <td class="text-center">@e.CategoryCount</td>
+                            <td class="text-center"><span class="badge rd-count-badge">@e.EnrolmentCount</span></td>
+                            <td class="text-end"><a asp-action="Enrolments" asp-route-eventId="@e.EventId" class="btn btn-outline-dark btn-sm">Enrolments</a></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

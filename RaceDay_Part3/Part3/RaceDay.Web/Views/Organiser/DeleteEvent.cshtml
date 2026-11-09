@@ -1,0 +1,18 @@
+@model EventDetailDto
+@{
+    ViewData["Title"] = "Delete event";
+}
+<div class="rd-auth">
+    <div class="card rd-card">
+        <div class="card-body text-center">
+            <i class="bi bi-exclamation-triangle-fill rd-warn-icon"></i>
+            <h1 class="rd-page-title">Delete this event?</h1>
+            <p><strong>@Model.EventName</strong><br />@Display.Date(Model.EventDate) - @Model.Location</p>
+            <p class="text-muted small">This also deletes its categories and routes. An event that already has enrolments can't be deleted.</p>
+            <form asp-action="DeleteEvent" asp-route-id="@Model.EventId" method="post" class="d-flex gap-2 justify-content-center">
+                <button type="submit" class="btn btn-danger">Yes, delete it</button>
+                <a asp-action="Events" class="btn btn-outline-secondary">Keep it</a>
+            </form>
+        </div>
+    </div>
+</div>

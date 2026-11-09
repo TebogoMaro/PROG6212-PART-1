@@ -1,0 +1,61 @@
+name: Build and Test (Part 2 API, Part 3 API + MVC + Docker)
+
+# Runs on every push and pull request.
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  part2-api:
+    name: Part 2 - build and test the API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore Part2/RaceDay.sln
+
+      - name: Build
+        run: dotnet build Part2/RaceDay.sln --configuration Release --no-restore
+
+      - name: Run unit tests
+        run: dotnet test Part2/RaceDay.sln --configuration Release --no-build --verbosity normal
+
+  part3-api-and-web:
+    name: Part 3 - build API and MVC web app, run tests, build Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies (API, tests and MVC web app)
+        run: dotnet restore Part3/RaceDay.sln
+
+      - name: Build API and MVC web app
+        run: dotnet build Part3/RaceDay.sln --configuration Release --no-restore
+
+      - name: Run API unit tests
+        run: dotnet test Part3/RaceDay.sln --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+
+      - name: Build the MVC Docker image
+        run: docker build --tag raceday-web:ci Part3/RaceDay.Web
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: part3-test-results
+          path: "**/test-results.trx"

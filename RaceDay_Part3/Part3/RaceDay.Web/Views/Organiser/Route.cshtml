@@ -1,0 +1,43 @@
+@model RouteFormModel
+@{
+    ViewData["Title"] = "Route";
+}
+<p class="rd-eyebrow">@ViewData["Heading"]</p>
+<h1 class="rd-page-title">Race route</h1>
+<div class="card rd-card">
+    <div class="card-body">
+        <p class="text-muted">Participants see this on the event page so they can prepare for race day.</p>
+        <form asp-action="CategoryRoute" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input type="hidden" asp-for="CategoryId" />
+            <input type="hidden" asp-for="EventId" />
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="StartPoint" class="form-label"></label>
+                    <input asp-for="StartPoint" class="form-control" />
+                    <span asp-validation-for="StartPoint" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="EndPoint" class="form-label"></label>
+                    <input asp-for="EndPoint" class="form-control" />
+                    <span asp-validation-for="EndPoint" class="text-danger small"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="RouteDescription" class="form-label"></label>
+                    <textarea asp-for="RouteDescription" rows="3" class="form-control"></textarea>
+                    <span asp-validation-for="RouteDescription" class="text-danger small"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="MapUrl" class="form-label"></label>
+                    <input asp-for="MapUrl" class="form-control" placeholder="https://..." />
+                    <span asp-validation-for="MapUrl" class="text-danger small"></span>
+                </div>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-rd">Save route</button>
+                <a asp-action="Categories" asp-route-eventId="@Model.EventId" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScripts" /> }
