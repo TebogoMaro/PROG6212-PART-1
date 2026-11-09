@@ -155,7 +155,8 @@ web app, runs the tests, and builds the Docker image.
 
 **Green build screenshot:**
 
-> _[Insert screenshot of the successful green build here]_
+<img width="1920" height="1080" alt="Part3 Green build" src="https://github.com/user-attachments/assets/82778c6e-a2f4-4875-bb86-d9da99f87693" />
+
 
 ## Video walkthrough
 
