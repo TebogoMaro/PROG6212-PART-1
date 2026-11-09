@@ -325,6 +325,6 @@ web app, runs the tests, and builds the Docker image.
 
 ## Video walkthrough
 
-> _[Insert unlisted YouTube link here]_
+> https://youtu.be/yvN2ZytVITQ
 
 
