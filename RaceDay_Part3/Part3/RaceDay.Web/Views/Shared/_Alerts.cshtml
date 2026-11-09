@@ -1,0 +1,20 @@
+@if (TempData["Success"] is string successMessage)
+{
+    <div class="alert alert-success rd-alert alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>@successMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["Error"] is string errorMessage)
+{
+    <div class="alert alert-danger rd-alert alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>@errorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (ViewData["LoadError"] is string loadError)
+{
+    <div class="alert alert-warning rd-alert" role="alert">
+        <i class="bi bi-wifi-off me-2"></i>@loadError
+    </div>
+}

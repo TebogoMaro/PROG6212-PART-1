@@ -1,0 +1,146 @@
+@model EventDetailsViewModel
+@{
+    var ev = Model.Event;
+    var user = Context.Session.GetUser();
+    var isOwner = user?.Role == AppRoles.Organiser && user.UserId == ev.OrganiserId;
+    var upcoming = Display.IsUpcoming(ev.EventDate);
+    ViewData["Title"] = ev.EventName;
+}
+
+<section class="rd-detail-hero">
+    @if (ev.HasBanner)
+    {
+        <img src="/media/event/@ev.EventId" alt="Banner for @ev.EventName" />
+    }
+    else
+    {
+        <div class="rd-event-placeholder type-@ev.EventType.ToLower() rd-detail-placeholder"><i class="bi @Display.EventIcon(ev.EventType)"></i></div>
+    }
+    <div class="rd-detail-title">
+        <span class="rd-type-badge"><i class="bi @Display.EventIcon(ev.EventType)"></i> @ev.EventType</span>
+        <h1>@ev.EventName</h1>
+    </div>
+</section>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card rd-card mb-4">
+            <div class="card-body">
+                <h2 class="rd-section-title">About this event</h2>
+                <p>@(string.IsNullOrWhiteSpace(ev.Description) ? "The organiser hasn't added a description yet." : ev.Description)</p>
+            </div>
+        </div>
+
+        <div class="card rd-card">
+            <div class="card-body">
+                <h2 class="rd-section-title">Categories</h2>
+                @if (!upcoming)
+                {
+                    <div class="alert alert-secondary"><i class="bi bi-flag-fill me-2"></i>This event has already taken place.</div>
+                }
+                @if (ev.Categories.Count == 0)
+                {
+                    <p class="text-muted mb-0">The organiser hasn't added any categories yet - check back soon.</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table rd-table align-middle">
+                            <thead><tr><th>Category</th><th>Distance</th><th>Places</th><th>Entry fee</th><th></th></tr></thead>
+                            <tbody>
+                            @foreach (var c in ev.Categories)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@c.CategoryName</strong>
+                                        @if (Model.Routes.TryGetValue(c.CategoryId, out var route))
+                                        {
+                                            <div class="small text-muted"><i class="bi bi-signpost-2"></i> @route.StartPoint to @route.EndPoint
+                                                @if (!string.IsNullOrWhiteSpace(route.MapUrl)) { <text> - <a href="@route.MapUrl" target="_blank" rel="noopener">map</a></text> }
+                                            </div>
+                                            @if (!string.IsNullOrWhiteSpace(route.RouteDescription)) { <div class="small text-muted">@route.RouteDescription</div> }
+                                        }
+                                    </td>
+                                    <td>@(c.DistanceKm is null ? "-" : Display.Km(c.DistanceKm.Value))</td>
+                                    <td>@c.MaxParticipants</td>
+                                    <td>@Display.Money(c.EntryFee)</td>
+                                    <td class="text-end">
+                                        @if (user?.Role == AppRoles.Participant)
+                                        {
+                                            if (Model.MyEnrolment is not null && Model.MyEnrolment.CategoryId == c.CategoryId)
+                                            {
+                                                <span class="rd-status @Display.StatusClass(Model.MyEnrolment.Status)">@Model.MyEnrolment.Status</span>
+                                            }
+                                            else if (Model.MyEnrolment is not null)
+                                            {
+                                                <span class="text-muted small">Enrolled in another category</span>
+                                            }
+                                            else if (upcoming)
+                                            {
+                                                <form asp-controller="Participant" asp-action="Enrol" method="post">
+                                                    <input type="hidden" name="eventId" value="@ev.EventId" />
+                                                    <input type="hidden" name="categoryId" value="@c.CategoryId" />
+                                                    <button type="submit" class="btn btn-rd btn-sm">Enrol</button>
+                                                </form>
+                                            }
+                                        }
+                                        else if (user is null && upcoming)
+                                        {
+                                            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@($"/Home/Details/{ev.EventId}")" class="btn btn-outline-dark btn-sm">Log in to enrol</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card rd-card mb-4">
+            <div class="card-body">
+                <h2 class="rd-section-title">Event details</h2>
+                <ul class="rd-facts list-unstyled mb-0">
+                    <li><i class="bi bi-calendar3"></i><span><small>Date</small>@Display.Date(ev.EventDate)</span></li>
+                    <li><i class="bi bi-geo-alt-fill"></i><span><small>Location</small>@ev.Location</span></li>
+                    <li><i class="bi bi-signpost-split"></i><span><small>Main distance</small>@Display.Km(ev.DistanceKm)</span></li>
+                    <li><i class="bi bi-person-badge"></i><span><small>Organiser</small>@ev.OrganiserName</span></li>
+                </ul>
+                @if (isOwner)
+                {
+                    <hr />
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Organiser" asp-action="EditEvent" asp-route-id="@ev.EventId" class="btn btn-outline-dark btn-sm"><i class="bi bi-pencil"></i> Edit event</a>
+                        <a asp-controller="Organiser" asp-action="Categories" asp-route-eventId="@ev.EventId" class="btn btn-outline-dark btn-sm"><i class="bi bi-tags"></i> Manage categories</a>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card rd-card">
+            <div class="card-body">
+                <h2 class="rd-section-title">Race-day weather</h2>
+                @if (Model.Weather is null)
+                {
+                    <p class="text-muted mb-0">Weather isn't available right now.</p>
+                }
+                else if (Model.Weather.IsForecast)
+                {
+                    <p class="rd-weather-summary"><i class="bi bi-cloud-sun-fill"></i> @Model.Weather.Summary</p>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="bi bi-thermometer-half"></i> @Model.Weather.TemperatureMinC&deg;C to @Model.Weather.TemperatureMaxC&deg;C</li>
+                        <li><i class="bi bi-droplet-fill"></i> @Model.Weather.PrecipitationChancePercent% chance of rain</li>
+                        <li><i class="bi bi-wind"></i> Wind up to @Model.Weather.WindSpeedMaxKmh km/h</li>
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">@Model.Weather.Note</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

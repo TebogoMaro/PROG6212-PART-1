@@ -1,0 +1,60 @@
+@model EnrolmentsViewModel
+@{
+    ViewData["Title"] = "Results";
+    var ev = Model.Event;
+}
+<p class="rd-eyebrow"><a asp-action="Events">My events</a> / @ev.EventName</p>
+<h1 class="rd-page-title">Capture results</h1>
+<p class="text-muted">Enter each participant's finish time as <strong>hours:minutes:seconds</strong> (for example 00:48:32) and their finishing position. Saved results are visible to the participant straight away.</p>
+
+@if (Model.Enrolments.Count == 0)
+{
+    <div class="rd-empty">
+        <i class="bi bi-stopwatch"></i>
+        <h2>No enrolments to capture results for</h2>
+        <p>Results can be entered once participants have enrolled.</p>
+    </div>
+}
+else
+{
+    <div class="card rd-card">
+        <ul class="list-group list-group-flush">
+        @foreach (var e in Model.Enrolments)
+        {
+            <li class="list-group-item rd-result-row @(e.Status == "Cancelled" ? "rd-past" : "")">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <strong>@e.ParticipantName</strong>
+                        <div class="small text-muted">@e.CategoryName <span class="rd-status @Display.StatusClass(e.Status)">@e.Status</span></div>
+                    </div>
+                    @if (e.Status == "Cancelled")
+                    {
+                        <div class="col-md-8 text-muted small">Cancelled - no result can be captured.</div>
+                    }
+                    else
+                    {
+                        <div class="col-md-8">
+                            <form asp-action="SaveResult" method="post" class="row g-2 align-items-center">
+                                <input type="hidden" name="eventId" value="@ev.EventId" />
+                                <input type="hidden" name="enrolmentId" value="@e.EnrolmentId" />
+                                @if (e.ResultId is not null) { <input type="hidden" name="resultId" value="@e.ResultId" /> }
+                                <div class="col-sm-4">
+                                    <input type="text" name="finishTime" class="form-control" placeholder="00:48:32" aria-label="Finish time"
+                                           value="@(e.FinishTime is null ? "" : Display.Time(e.FinishTime.Value))" pattern="\d{1,2}:[0-5]\d:[0-5]\d" title="Hours:minutes:seconds, e.g. 00:48:32" required />
+                                </div>
+                                <div class="col-sm-3">
+                                    <input type="number" name="position" class="form-control" min="1" placeholder="Position" aria-label="Finishing position" value="@e.Position" />
+                                </div>
+                                <div class="col-sm-5">
+                                    <button type="submit" class="btn @(e.ResultId is null ? "btn-rd" : "btn-outline-dark") btn-sm">@(e.ResultId is null ? "Save result" : "Update result")</button>
+                                    @if (e.ResultId is not null) { <span class="text-success small ms-2"><i class="bi bi-check-circle-fill"></i> Published</span> }
+                                </div>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </li>
+        }
+        </ul>
+    </div>
+}

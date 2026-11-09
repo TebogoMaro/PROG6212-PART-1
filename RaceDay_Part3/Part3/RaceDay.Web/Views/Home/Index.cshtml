@@ -1,0 +1,59 @@
+@model HomeIndexViewModel
+@{
+    ViewData["Title"] = "Upcoming events";
+}
+
+<section class="rd-hero">
+    <p class="rd-eyebrow">Find your next start line</p>
+    <h1>Run. Walk. <em>Ride.</em></h1>
+    <p class="lead">Browse upcoming South African road events, pick your category and enter in a few clicks.</p>
+</section>
+
+<form method="get" class="rd-filter card">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label" for="location">Location</label>
+            <input type="text" class="form-control" id="location" name="location" value="@Model.Location" placeholder="e.g. Durban" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="eventType">Type</label>
+            <select class="form-select" id="eventType" name="eventType">
+                <option value="">All types</option>
+                <option value="Run" selected="@(Model.EventType == "Run")">Run</option>
+                <option value="Walk" selected="@(Model.EventType == "Walk")">Walk</option>
+                <option value="Cycle" selected="@(Model.EventType == "Cycle")">Cycle</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="fromDate">From</label>
+            <input type="date" class="form-control" id="fromDate" name="fromDate" value="@(Model.FromDate?.ToString("yyyy-MM-dd"))" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="toDate">To</label>
+            <input type="date" class="form-control" id="toDate" name="toDate" value="@(Model.ToDate?.ToString("yyyy-MM-dd"))" />
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-rd flex-fill"><i class="bi bi-funnel-fill"></i> Filter</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+        </div>
+    </div>
+</form>
+
+@if (Model.Events.Count == 0)
+{
+    <div class="rd-empty">
+        <i class="bi bi-calendar-x"></i>
+        <h2>No events found</h2>
+        <p>Try changing or clearing your filters - new events are added all the time.</p>
+    </div>
+}
+else
+{
+    <p class="rd-count">@Model.Events.Count upcoming @(Model.Events.Count == 1 ? "event" : "events")</p>
+    <div class="row g-4">
+        @foreach (var ev in Model.Events)
+        {
+            <div class="col-sm-6 col-lg-4"><partial name="_EventCard" model="ev" /></div>
+        }
+    </div>
+}

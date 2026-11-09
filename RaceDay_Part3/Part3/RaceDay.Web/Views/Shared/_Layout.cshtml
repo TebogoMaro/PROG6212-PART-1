@@ -1,0 +1,97 @@
+@{
+    var user = Context.Session.GetUser();
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string Active(string c, string a) => controller == c && action == a ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - RaceDay</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark rd-navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand rd-brand" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-lightning-charge-fill"></i> RACE<span>DAY</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    @if (user is null)
+                    {
+                        <li class="nav-item"><a class="nav-link @Active("Home", "Index")" asp-controller="Home" asp-action="Index"><i class="bi bi-calendar-event"></i> Browse events</a></li>
+                    }
+                    else if (user.Role == AppRoles.Organiser)
+                    {
+                        <li class="nav-item"><a class="nav-link @Active("Organiser", "Dashboard")" asp-controller="Organiser" asp-action="Dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link @Active("Organiser", "Events")" asp-controller="Organiser" asp-action="Events"><i class="bi bi-calendar-event"></i> My events</a></li>
+                        <li class="nav-item"><a class="nav-link @Active("Organiser", "CreateEvent")" asp-controller="Organiser" asp-action="CreateEvent"><i class="bi bi-plus-circle"></i> Create event</a></li>
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link @Active("Home", "Index")" asp-controller="Home" asp-action="Index"><i class="bi bi-calendar-event"></i> Browse events</a></li>
+                        <li class="nav-item"><a class="nav-link @Active("Participant", "MyEnrolments")" asp-controller="Participant" asp-action="MyEnrolments"><i class="bi bi-ticket-perforated"></i> My enrolments</a></li>
+                        <li class="nav-item"><a class="nav-link @Active("Participant", "MyResults")" asp-controller="Participant" asp-action="MyResults"><i class="bi bi-trophy"></i> My results</a></li>
+                    }
+                </ul>
+                <ul class="navbar-nav align-items-lg-center">
+                    @if (user is null)
+                    {
+                        <li class="nav-item"><a class="nav-link @Active("Account", "Login")" asp-controller="Account" asp-action="Login">Log in</a></li>
+                        <li class="nav-item ms-lg-2"><a class="btn btn-rd btn-sm" asp-controller="Account" asp-action="Register">Join RaceDay</a></li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center gap-2 @Active("Account", "Profile")" asp-controller="Account" asp-action="Profile">
+                                @if (user.HasProfilePicture)
+                                {
+                                    <img src="/media/profile" class="rd-avatar-sm" alt="Your profile picture" />
+                                }
+                                else
+                                {
+                                    <span class="rd-avatar-sm rd-avatar-fallback"><i class="bi bi-person-fill"></i></span>
+                                }
+                                <span>@user.FullName</span>
+                                <span class="badge rd-role-badge role-@user.Role.ToLower()">@user.Role</span>
+                            </a>
+                        </li>
+                        <li class="nav-item ms-lg-2">
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right"></i> Log out</button>
+                            </form>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container rd-main">
+        <partial name="_Alerts" />
+        @RenderBody()
+    </main>
+
+    <footer class="rd-footer">
+        <div class="container d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span class="rd-brand"><i class="bi bi-lightning-charge-fill"></i> RACE<span>DAY</span></span>
+            <span class="small">South African road running, walking and cycling - all in one place.</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

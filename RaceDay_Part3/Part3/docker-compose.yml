@@ -1,0 +1,16 @@
+# One command to build and start the RaceDay web app in Docker:
+#     docker compose up --build
+# (run from the Part3 folder). The RaceDay API must already be running on your computer at port 5080.
+services:
+  web:
+    build:
+      context: ./RaceDay.Web
+    image: raceday-web
+    container_name: raceday-web
+    ports:
+      - "8080:8080"
+    environment:
+      ApiBaseUrl: http://host.docker.internal:5080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
