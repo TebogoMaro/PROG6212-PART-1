@@ -1,0 +1,19 @@
+# Build output
+**/bin/
+**/obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Test results
+**/TestResults/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Accidental duplicate project copy
+/Properties/RaceDay_Part3/
